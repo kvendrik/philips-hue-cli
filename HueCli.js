@@ -1,16 +1,44 @@
-var hue = require('node-hue-api'),
+var hue = require('node-hue-api');
 
 /**
  * Philips Hue CLI Class. Handles CLI commands.
- * @param {Array} argv Command line arguments array
+ * @param {Array}  argv      Command line arguments array
+ * @param {String} hostname  IP address of the Philips Hue bridge
+ * @param {Array}  hash      Hash or id for the bridge
  */
-HueCli = function(argv){
+HueCli = function(argv, hostname, hash){
 
-  var hostname = '192.168.2.68',
-  hash = '3c54f51b51f86f43ff82317d165f7';
+  //get config file
+  var settings;
+  try {
+    settings = require('./.hue.json');
+
+    if(!hostname){
+      if(!settings.auth.hostname){
+        throw new Error('✘ Specify either a hostname in the constructor or in a .hue.json file.');
+      } else {
+        hostname = settings.auth.hostname;
+      }
+    }
+
+    if(!hash){
+      if(!settings.auth.hash){
+        throw new Error('✘ Specify either a hash in the constructor or in a .hue.json file.');
+      } else {
+        hash = settings.auth.hash;
+      }
+    }
+  } catch(err){
+    settings = undefined;
+
+    if(!hostname || !hash){
+      throw new Error('✘ Specify either a hostname and hash in the constructor or in a .hue.json file.');
+    }
+  }
 
   this.lightState = hue.lightState;
   this.api = new hue.HueApi(hostname, hash);
+  this.settings = settings;
 
   this.processArgv(argv);
 
@@ -21,10 +49,11 @@ HueCli = function(argv){
  * @param  {Array} argv Command line arguments array
  */
 HueCli.prototype.processArgv = function(argv){
+  var lampIdx = argv[2];
 
   //no specific command
   //show help
-  if( argv.length < 3 || (argv[2] !== 'all' && isNaN(argv[2])) ){
+  if( argv.length < 4 || (isNaN(lampIdx) && lampIdx !== 'all') ){
 
     console.log(
       'Philips Hue CLI.\n'+
@@ -35,10 +64,24 @@ HueCli.prototype.processArgv = function(argv){
 
   } else {
 
+    //if an alias is used
+    var aliases = this.settings.aliases || {};
+    if(typeof aliases[argv[3]] !== 'undefined'){
+      //get alias
+      var aliasArgv = aliases[argv[3]].split(' ');
+
+      //remove alias from arguments
+      argv = argv.splice(0,3);
+
+      //add alias params to argv
+      for(var i = 0; i < aliasArgv.length; i++){
+        argv.push(aliasArgv[i]);
+      }
+    }
+
     //specific idx given
     //check for flags
-    var lampIdx = argv[2],
-    flags = this.getFlags(argv),
+    var flags = this.getFlags(argv),
     state = this.handleFlags(flags);
 
     //set light state
@@ -129,7 +172,7 @@ HueCli.prototype.handleFlags = function(flags){
       //check value for numbers and arrays
       val = this.checkFlagVal(curr.val);
 
-      console.log('Adding '+curr.key+(val ? ' with '+val : ''));
+      console.log('Adding '+curr.key+(val[0] ? ' with '+val : ''));
       state = state[curr.key](val[0], val[1], val[2]);
     } else {
       console.log(curr.key+' is not a valid flag');
