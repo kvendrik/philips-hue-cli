@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+var HueCli = require('./HueCli');
+new HueCli(process.argv);

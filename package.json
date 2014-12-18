@@ -1,0 +1,15 @@
+{
+  "name": "philips-hue-cli",
+  "version": "0.0.0",
+  "description": "CLI for the Philips Hue lights",
+  "main": "./hue",
+  "dependencies": {
+    "node-hue-api": "^0.2.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Koen Vendrik",
+  "license": "MIT"
+}
