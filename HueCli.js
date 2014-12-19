@@ -66,9 +66,11 @@ HueCli.prototype.processArgv = function(argv){
 
     //check if an alias is used
     var aliases = this.settings.aliases || {};
-    if(typeof aliases[argv[3]] !== 'undefined'){
-      //replace alias with value
-      argv = argv.join(' ').replace(argv[3], aliases[argv[3]]).split(' ');
+    for(var alias in aliases){
+      if(argv.indexOf(alias) !== -1){
+        //replace alias with value
+        argv = argv.join(' ').replace(alias, aliases[alias]).split(' ');
+      }
     }
 
     //specific idx given
