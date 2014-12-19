@@ -102,27 +102,36 @@ Users.prototype.createNewUserInteractively = function(){
       self.process.exit(1);
     }
 
-    bridgeCount = bridges.length;
-    console.log(bridgeCount+' bridge'+(bridgeCount > 1 ? 's were' : ' was')+' found.\n');
+    var bridgeCount = bridges.length;
 
-    for(var i = 0; i < bridges.length; i++){
-      console.log(
-        '#1: '+JSON.stringify(bridges[i])
-      );
+    if(bridgeCount > 0){
+
+      console.log(bridgeCount+' bridge'+(bridgeCount > 1 ? 's were' : ' was')+' found.\n');
+
+      for(var i = 0; i < bridges.length; i++){
+        console.log(
+          '#1: '+JSON.stringify(bridges[i])
+        );
+      }
+
+      self.askWithCondition('Which one would you like to use? ',
+      function(answer){
+        try {
+          var id = Number(answer);
+          if(id > 0 && id <= bridgeCount) return true;
+        } catch(err){
+          return false;
+        }
+      },
+      function(answer){
+        self.createUserForBridge.call(self, bridges[answer-1]);
+      });
+
+    } else {
+      console.error('✘ No bridges found.');
+      self.process.exit(1);
     }
 
-    self.askWithCondition('Which one would you like to use? ',
-    function(answer){
-      try {
-        var id = Number(answer);
-        if(id > 0 && id <= bridgeCount) return true;
-      } catch(err){
-        return false;
-      }
-    },
-    function(answer){
-      self.createUserForBridge.call(self, bridges[answer-1]);
-    });
   });
 
 };
