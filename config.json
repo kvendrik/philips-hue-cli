@@ -1,0 +1,9 @@
+{
+  "auth": {
+    "hostname": "192.168.2.68",
+    "hash": "3a892e62b46fad73fdcf17e381250e3"
+  },
+  "aliases": {
+    "redalert": "2 --rgb=255,0,0 --alert=true"
+  }
+}

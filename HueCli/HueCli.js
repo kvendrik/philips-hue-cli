@@ -1,82 +1,95 @@
-var hue = require('node-hue-api');
+var hue = require('node-hue-api'),
+
+ConfigCmd = require('./cmds/Config'),
+UsersCmd = require('./cmds/Users'),
+pkg = require('../package.json'),
+config = require('../config.json');
 
 /**
  * Philips Hue CLI Class. Handles CLI commands.
- * @param {Array}  argv      Command line arguments array
+ * @param {Array}  args      Arguments array
  * @param {String} hostname  IP address of the Philips Hue bridge
  * @param {Array}  hash      Hash or id for the bridge
  */
-HueCli = function(argv, hostname, hash){
+HueCli = function(args){
 
-  //get config file
-  var settings;
-  try {
-    settings = require('./.hue.json');
-
-    if(!hostname){
-      if(!settings.auth.hostname){
-        throw new Error('✘ Specify either a hostname in the constructor or in a .hue.json file.');
-      } else {
-        hostname = settings.auth.hostname;
-      }
-    }
-
-    if(!hash){
-      if(!settings.auth.hash){
-        throw new Error('✘ Specify either a hash in the constructor or in a .hue.json file.');
-      } else {
-        hash = settings.auth.hash;
-      }
-    }
-  } catch(err){
-    settings = undefined;
-
-    if(!hostname || !hash){
-      throw new Error('✘ Specify either a hostname and hash in the constructor or in a .hue.json file.');
-    }
+  //check if there is user data in the config file
+  if(!config.auth || !config.auth.hostname || !config.auth.hash){
+    args[1] = 'add';
+    new UsersCmd(args);
+    return;
   }
+
+  var hostname = config.auth.hostname,
+  hash = config.auth.hash;
 
   this.lightState = hue.lightState;
   this.api = new hue.HueApi(hostname, hash);
-  this.settings = settings;
 
-  this.processArgv(argv);
+  this.processArgv(args);
 
 };
 
 /**
  * Decomposes arguments array and processes it
- * @param  {Array} argv Command line arguments array
+ * @param  {Array} args Arguments array
  */
-HueCli.prototype.processArgv = function(argv){
-  var lampIdx = argv[2];
+HueCli.prototype.processArgv = function(args){
 
-  //no specific command
-  //show help
-  if( argv.length < 4 || (isNaN(lampIdx) && lampIdx !== 'all') ){
+  //check if an alias is used
+  var aliases = config.aliases || {};
+  for(var alias in aliases){
+    if(args.indexOf(alias) !== -1){
+      //replace alias with value
+      args = args.join(' ').replace(alias, aliases[alias]).split(' ');
+    }
+  }
 
-    console.log(
-      'Philips Hue CLI.\n'+
-      'Usage: ./hue [lampIdx|all] [options...]\n'+
-      'Check http://github.com/peter-murray/node-hue-api#lightstate-options for all options'
-    );
+  //if no lamp idx is given
+  var lampIdx = args[0];
+  if( args.length < 2 || (isNaN(lampIdx) && lampIdx !== 'all') ){
+
+    switch(lampIdx){
+      case 'init':
+        console.log(
+          'Welcome to the Philips Hue CLI\n'+
+          'Before we start please note that this piece of\n'+
+          'open-source software is in no way associated with Philips.\n'
+        );
+        args[1] = 'add';
+        new UsersCmd(args);
+        break;
+
+      case 'users':
+        new UsersCmd(args);
+        break;
+
+      case 'config':
+        new ConfigCmd(args);
+        break;
+
+      case '-v':
+      case '--version':
+        console.log(pkg.name+' v'+pkg.version);
+        break;
+
+      default:
+        console.log(
+          'Philips Hue CLI.\n'+
+          'Usage: hue [lampIdx|all] [options...]\n'+
+          'Check http://github.com/peter-murray/node-hue-api#lightstate-options for all options\n'+
+          'Please note that this piece of open-source software is in no way associated with Philips.'
+        );
+    }
+
     return;
 
   } else {
 
-    //check if an alias is used
-    var aliases = this.settings.aliases || {};
-    for(var alias in aliases){
-      if(argv.indexOf(alias) !== -1){
-        //replace alias with value
-        argv = argv.join(' ').replace(alias, aliases[alias]).split(' ');
-      }
-    }
-
     //specific idx given
     //check for flags
-    var flags = this.getFlags(argv),
-    state = this.handleFlags(flags);
+    var flags = this.getFlags(args),
+    state = this.createState(flags);
 
     //set light state
     this.changeLightToState(lampIdx, state);
@@ -127,14 +140,14 @@ HueCli.prototype.changeLightToState = function(lampIdx, state){
 
 /**
  * Gets flags from arguments array
- * @param  {Array} argv Command line arguments array
+ * @param  {Array} args The constructor's arguments array
  * @return {Array}      Object array with flags key value pairs
  */
-HueCli.prototype.getFlags = function(argv){
+HueCli.prototype.getFlags = function(args){
   var flags = [];
 
-  for(var i = 3; i < argv.length; i++){
-    var curr = argv[i];
+  for(var i = 1; i < args.length; i++){
+    var curr = args[i];
     if(curr.substr(0,2) === '--'){
 
       var matches = curr.replace('--','').split('=');
@@ -151,7 +164,7 @@ HueCli.prototype.getFlags = function(argv){
  * @param  {Array} flags Object array with flags key value pairs
  * @return {State}       A new Hue API State object
  */
-HueCli.prototype.handleFlags = function(flags){
+HueCli.prototype.createState = function(flags){
 
   //create new state
   var state = this.lightState.create(),
