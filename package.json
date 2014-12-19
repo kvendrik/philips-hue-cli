@@ -13,7 +13,7 @@
     "node": ">=0.10"
   },
   "bin": {
-    "hue": "hue.js"
+    "hue": "hue"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
