@@ -8,16 +8,15 @@ config = require('../config.json');
 /**
  * Philips Hue CLI Class. Handles CLI commands.
  * @param {Array}  args      Arguments array
- * @param {String} hostname  IP address of the Philips Hue bridge
- * @param {Array}  hash      Hash or id for the bridge
+ * @param {Object} process   Process object for when executed through the command line
  */
-HueCli = function(args){
+HueCli = function(args, process){
 
   //check if there is user data in the config file
   if(!config.auth || !config.auth.hostname || !config.auth.hash){
     args[1] = 'add';
-    new UsersCmd(args);
-    return;
+    new UsersCmd(args, process);
+    process.exit(0);
   }
 
   var hostname = config.auth.hostname,
@@ -25,6 +24,7 @@ HueCli = function(args){
 
   this.lightState = hue.lightState;
   this.api = new hue.HueApi(hostname, hash);
+  this.process = process;
 
   this.processArgv(args);
 
@@ -57,15 +57,15 @@ HueCli.prototype.processArgv = function(args){
           'open-source software is in no way associated with Philips.\n'
         );
         args[1] = 'add';
-        new UsersCmd(args);
+        new UsersCmd(args, this.process);
         break;
 
       case 'users':
-        new UsersCmd(args);
+        new UsersCmd(args, this.process);
         break;
 
       case 'config':
-        new ConfigCmd(args);
+        new ConfigCmd(args, this.process);
         break;
 
       case '-v':
@@ -78,8 +78,6 @@ HueCli.prototype.processArgv = function(args){
       default:
         this.displayHelp();
     }
-
-    return;
 
   } else {
 
@@ -95,6 +93,11 @@ HueCli.prototype.processArgv = function(args){
 
 };
 
+HueCli.prototype.throwError = function(err){
+  console.error('Error: '+err);
+  this.process.exit(1);
+};
+
 /**
  * Changes a lamp to the specified state
  * @param  {Number|String} lampIdx  Index of the lamp you would like to change or 'all'
@@ -105,7 +108,8 @@ HueCli.prototype.changeLightToState = function(lampIdx, state){
   var self = this,
   setLightState = function(lampIdx, state){
     self.api.setLightState(lampIdx, state, function(err, success){
-      if(err) throw err;
+      if(err) self.throwError(err);
+
       if(success){
         console.log('✔ Changed lamp '+lampIdx+'.');
       } else {
@@ -119,7 +123,7 @@ HueCli.prototype.changeLightToState = function(lampIdx, state){
   if(lampIdx === 'all'){
 
     this.api.lights(function(err, lights) {
-      if (err) throw err;
+      if(err) self.throwError(err);
       lights = lights.lights;
 
       for(var i = 0; i < lights.length; i++){

@@ -6,10 +6,18 @@
   "dependencies": {
     "node-hue-api": "^0.2.4"
   },
+  "keywords": ["philips hue", "hue cli", "philips hue cli"],
+  "repository": { "type": "git", "url": "https://github.com/kvendrik/philips-hue-cli" },
   "devDependencies": {},
+  "engines": {
+    "node": ">=0.10"
+  },
+  "bin": {
+    "hue": "hue.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Koen Vendrik",
+  "author": "Koen Vendrik <k.vendrik@gmail.com>",
   "license": "MIT"
 }

@@ -2,4 +2,4 @@
 
 var HueCli = require('./HueCli/HueCli'),
 args = process.argv;
-new HueCli(args.splice(2,process.argv.length-2));
+new HueCli(args.splice(2,process.argv.length-2), process);

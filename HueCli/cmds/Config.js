@@ -1,10 +1,12 @@
 var config = require('../../config.json'),
 fs = require('fs');
 
-Config = function(args){
+Config = function(args, process){
 
   var configPath = args[1],
   toValue = args[2];
+
+  this.process = process;
 
   if(configPath){
     if(toValue){
@@ -14,10 +16,12 @@ Config = function(args){
     } else {
 
       console.log(this.getValue(configPath));
+      process.exit(0);
 
     }
   } else {
     console.log(config);
+    process.exit(0);
   }
 
 };
@@ -56,9 +60,15 @@ Config.prototype.setValue = function(jsonPath, value){
   var details = this.getLastKey(jsonPath);
   details.parent[details.key] = value;
 
+  var self = this;
+
   fs.writeFile('./config.json', JSON.stringify(config, null, 2), function(err) {
-    if(err) throw err;
+    if(err){
+      console.error('Error: '+err);
+      self.process.exit(1);
+    }
     console.log('✔ Saved to config.');
+    process.exit(0);
   });
 };
 
