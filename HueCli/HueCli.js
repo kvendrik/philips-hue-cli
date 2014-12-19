@@ -112,8 +112,10 @@ HueCli.prototype.changeLightToState = function(lampIdx, state){
 
       if(success){
         console.log('✔ Changed lamp '+lampIdx+'.');
+        self.process.exit(0);
       } else {
         console.error('✘ An error occured');
+        self.process.exit(1);
       }
     });
   };
@@ -262,8 +264,16 @@ HueCli.prototype.displayHelp = function(){
     '        Add, remove or list users\n\n'+
     '    config <path> [<value>]\n'+
     '        Get or set config values. Sets the value of the <path> to <value>.\n        If there is no value specified it prints the current value of <path>\n\n'+
+    'ALIASES\n'+
+    '    You can use aliases to shorthand commands. Aliases are saved in the config file\n'+
+    '    under "aliases" and can be set or viewed using the config command.\n\n'+
+    '    Set alias example:\n'+
+    '        hue config aliases.redalert "all --on --rgb=255,0,0 --alert=true"\n\n'+
+    '    View alias example:\n'+
+    '        hue config aliases.redalert\n\n'+
     'Please note that this piece of open-source software is in no way associated with Philips.'
   );
+  this.process.exit(0);
 };
 
 module.exports = HueCli;
