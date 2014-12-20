@@ -128,7 +128,7 @@ Users.prototype.createNewUserInteractively = function(){
       });
 
     } else {
-      console.error('✘ No bridges found.');
+      console.error('✘ No bridges found. Try pressing the link button on the bridge and then re-running the command.');
       self.process.exit(1);
     }
 

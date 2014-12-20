@@ -1,9 +1,12 @@
 {
   "auth": {
     "hostname": "192.168.0.102",
-    "hash": "2bd9d6e812dfb99fe899c9829db658f"
+    "hash": "2c28441b90ef76f357d27232f2e44f7"
   },
   "aliases": {
     "redalert": "all --rgb=255,0,0 --alert=true"
+  },
+  "test": {
+    "ok": "hi"
   }
 }
