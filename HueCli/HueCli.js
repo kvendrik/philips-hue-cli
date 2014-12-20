@@ -106,16 +106,24 @@ HueCli.prototype.throwError = function(err){
 HueCli.prototype.changeLightToState = function(lampIdx, state){
 
   var self = this,
+  lampsToChange = lampIdx === 'all' ? 3 : 1,
+  lampsChanged = { success: 0, error: 0 },
   setLightState = function(lampIdx, state){
     self.api.setLightState(lampIdx, state, function(err, success){
       if(err) self.throwError(err);
 
       if(success){
         console.log('✔ Changed lamp '+lampIdx+'.');
-        self.process.exit(0);
+        lampsChanged.success++;
       } else {
         console.error('✘ An error occured');
-        self.process.exit(1);
+        lampsChanged.error++;
+      }
+
+      //check if all lamps are changed
+      //if so exit
+      if((lampsChanged.success+lampsChanged.error) === lampsToChange){
+        self.process.exit(lampsChanged.error > 0 ? 1 : 0);
       }
     });
   };
