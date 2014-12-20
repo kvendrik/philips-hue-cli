@@ -16,14 +16,3 @@ sudo npm install
 ```
 ./hue --help
 ```
-
-### Install Globally
-If you would like to install the CLI globally so you can use it without having to move into the folder every time then run this when in the folder:
-```
-sudo npm install -g
-```
-
-Then check the installation using:
-```
-hue -v
-```
