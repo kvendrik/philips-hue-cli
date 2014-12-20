@@ -4,7 +4,7 @@
     "hash": "2c28441b90ef76f357d27232f2e44f7"
   },
   "aliases": {
-    "redalert": "all --rgb=255,0,0 --alert=true"
-  },
-  "test": {}
+    "redalert": "all --rgb=255,0,0 --alert=true",
+    "on": "all --on --rgb=255,255,255"
+  }
 }
