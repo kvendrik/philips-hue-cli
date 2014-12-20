@@ -9,16 +9,20 @@ Config = function(args, process){
   this.process = process;
 
   if(configPath){
-    if(toValue){
 
+    if(args.indexOf('--unset') !== -1){
+      //unset value
+      this.unsetKey(configPath);
+    } else if(toValue){
+      //if there is a value
+      //set value
       this.setValue(configPath, toValue);
-
     } else {
-
+      //if not echo the current value
       console.log(this.getValue(configPath));
       process.exit(0);
-
     }
+
   } else {
     console.log(config);
     process.exit(0);
@@ -54,6 +58,18 @@ Config.prototype.getValue = function(jsonPath){
 
 };
 
+Config.prototype.writeConfigJson = function(json, callback){
+
+  var self = this;
+  fs.writeFile('./config.json', JSON.stringify(json, null, 2), function(err) {
+    if(err){
+      console.error('Error: '+err);
+      self.process.exit(1);
+    }
+    callback();
+  });
+
+};
 
 Config.prototype.setValue = function(jsonPath, value){
 
@@ -61,15 +77,24 @@ Config.prototype.setValue = function(jsonPath, value){
   details.parent[details.key] = value;
 
   var self = this;
-
-  fs.writeFile('./config.json', JSON.stringify(config, null, 2), function(err) {
-    if(err){
-      console.error('Error: '+err);
-      self.process.exit(1);
-    }
+  this.writeConfigJson(config, function(){
     console.log('✔ Saved to config.');
-    process.exit(0);
+    self.process.exit(0);
   });
+
+};
+
+Config.prototype.unsetKey = function(jsonPath){
+
+  var details = this.getLastKey(jsonPath);
+  delete details.parent[details.key];
+
+  var self = this;
+  this.writeConfigJson(config, function(){
+    console.log('✔ Removed from config.');
+    self.process.exit(0);
+  });
+
 };
 
 module.exports = Config;

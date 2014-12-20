@@ -73,6 +73,10 @@ HueCli.prototype.processArgv = function(args){
         console.log(pkg.name+' v'+pkg.version);
         break;
 
+      case '--manual':
+        this.displayHelp(true);
+        break;
+
       case '-h':
       case '--help':
       default:
@@ -243,49 +247,55 @@ HueCli.prototype.checkFlagVal = function(val){
 
 /**
  * Displays the CLI's help message
+  * @param  {Boolean} manual If true print the long manual version
  */
-HueCli.prototype.displayHelp = function(){
+HueCli.prototype.displayHelp = function(manual){
   console.log(
     'Philips Hue CLI.\n'+
-    'Usage: hue <lampIdx>|<all>|<users>|<init>|<config> [options...]\n\n'+
-    'OPTIONS (from: https://github.com/peter-murray/node-hue-api#lightstate-options)\n'+
-    '    Options for when specifing a lampIdx or "all". These will be converted\n    into a new lamp state.\n\n'+
-    '    --on\n'+
-    '        Turns on the specified light(s)\n\n'+
-    '    --off\n'+
-    '        Turns on the specified light(s)\n\n'+
-    '    --alert[=<isLong>]\n'+
-    '        Flashes the specified light(s) once. If <isLong> is true then\n        the alert will flash 10 times\n\n'+
-    '    --white=<colorTemp>,<brightPercent>\n'+
-    '        Where <colorTemp> is a value between 154 (cool) and 500 (warm)\n        and <brightPercent> is 0 to 100\n\n'+
-    '    --brightness=<percent>\n'+
-    '        Where <percent> is the brightness from 0 to 100\n\n'+
-    '    --hsl=<hue>, <saturation>, <brightPercent>\n'+
-    '        Where <hue> is a value from 0 to 359, <saturation> is a percent\n        value from 0 to 100, and <brightPercent> is from 0 to 100\n\n'+
-    '    --xy=<x>, <y>\n'+
-    '        Where <x> and <y> is from 0 to 1 in the Philips Color co-ordinate system\n\n'+
-    '    --rgb=<red>, <green>, <blue>\n'+
-    '        Where <red>, <green> and <blue> are values from 0 to 255 - Not all\n        colors can be created by the lights\n\n'+
-    '    --transition=<seconds>\n'+
-    '        This can be used with another setting to create a transition effect\n        (like change brightness over 10 seconds)\n\n'+
-    '    --effect=<value>\n'+
-    '        This can be set to "colorloop" or "none". The "colorloop" rotates\n        through all available hues at the current saturation level\n\n'+
-    'HUE COMMANDS\n'+
-    '    init\n'+
-    '        Basically a shorthand for "users add"\n\n'+
-    '    users <add>|<remove>|<list> [<user hash/username>]\n'+
-    '        Add, remove or list users\n\n'+
-    '    config <path> [<value>]\n'+
-    '        Get or set config values. Sets the value of the <path> to <value>.\n        If there is no value specified it prints the current value of <path>\n\n'+
-    'ALIASES\n'+
-    '    You can use aliases to shorthand commands. Aliases are saved in the config file\n'+
-    '    under "aliases" and can be set or viewed using the config command.\n\n'+
-    '    Set alias example:\n'+
-    '        hue config aliases.redalert "all --on --rgb=255,0,0 --alert=true"\n\n'+
-    '    View alias example:\n'+
-    '        hue config aliases.redalert\n\n'+
-    'Please note that this piece of open-source software is in no way associated with Philips.'
+    'Usage: hue <lampIdx>|<all>|<users>|<init>|<config> [options...]'
   );
+
+  if(manual){
+    console.log('\n\nOPTIONS (from: https://github.com/peter-murray/node-hue-api#lightstate-options)\n'+
+      '    Options for when specifing a lampIdx or "all". These will be converted\n    into a new lamp state.\n\n'+
+      '    --on\n'+
+      '        Turns on the specified light(s)\n\n'+
+      '    --off\n'+
+      '        Turns on the specified light(s)\n\n'+
+      '    --alert[=<isLong>]\n'+
+      '        Flashes the specified light(s) once. If <isLong> is true then\n        the alert will flash 10 times\n\n'+
+      '    --white=<colorTemp>,<brightPercent>\n'+
+      '        Where <colorTemp> is a value between 154 (cool) and 500 (warm)\n        and <brightPercent> is 0 to 100\n\n'+
+      '    --brightness=<percent>\n'+
+      '        Where <percent> is the brightness from 0 to 100\n\n'+
+      '    --hsl=<hue>, <saturation>, <brightPercent>\n'+
+      '        Where <hue> is a value from 0 to 359, <saturation> is a percent\n        value from 0 to 100, and <brightPercent> is from 0 to 100\n\n'+
+      '    --xy=<x>, <y>\n'+
+      '        Where <x> and <y> is from 0 to 1 in the Philips Color co-ordinate system\n\n'+
+      '    --rgb=<red>, <green>, <blue>\n'+
+      '        Where <red>, <green> and <blue> are values from 0 to 255 - Not all\n        colors can be created by the lights\n\n'+
+      '    --transition=<seconds>\n'+
+      '        This can be used with another setting to create a transition effect\n        (like change brightness over 10 seconds)\n\n'+
+      '    --effect=<value>\n'+
+      '        This can be set to "colorloop" or "none". The "colorloop" rotates\n        through all available hues at the current saturation level\n\n'+
+      'HUE COMMANDS\n'+
+      '    init\n'+
+      '        Basically a shorthand for "users add"\n\n'+
+      '    users <add>|<remove>|<list> [<user hash/username>]\n'+
+      '        Add, remove or list users\n\n'+
+      '    config <path> [<value>] [--unset]\n'+
+      '        Get or set config values. Sets the value of the <path> to <value>.\n        If there is no value specified it prints the current value of <path>.\n        The unset flag unsets the key specified in <path>.\n\n'+
+      'ALIASES\n'+
+      '    You can use aliases to shorthand commands. Aliases are saved in the config file\n'+
+      '    under "aliases" and can be set or viewed using the config command.\n\n'+
+      '    Set alias example:\n'+
+      '        hue config aliases.redalert "all --on --rgb=255,0,0 --alert=true"\n\n'+
+      '    View alias example:\n'+
+      '        hue config aliases.redalert\n\n'+
+      'Please note that this piece of open-source software is in no way associated with Philips.'
+    );
+  }
+
   this.process.exit(0);
 };
 
