@@ -83,11 +83,48 @@ HueCli.prototype.processArgv = function(args){
 
     //specific idx given
     //check for flags
-    var flags = this.getFlags(args),
-    state = this.createState(flags);
+    var flags = this.getFlags(args);
 
-    //set light state
-    this.changeLightToState(lampIdx, state);
+    //for specified or all lamps
+    //create new state and apply it to the lamp
+    var lampsToChange = lampIdx === 'all' ? 3 : 1,
+    errorOccured = false,
+    self = this,
+    state;
+    
+    //callback that invokes when a lamp changes
+    var onLampChange = function(success, lampIdx){
+      if(success){
+        console.log('✔ Changed lamp '+lampIdx+'.');
+      } else {
+        console.error('✘ An error occured');
+        errorOccured = true;
+      }
+
+      //check if the current lamp is the last one
+      //if so exit when the appropriate exit code
+      if(lampIdx === lampsToChange || lampsToChange === 1){
+        self.process.exit(errorOccured ? 1 : 0);
+      }
+    };
+
+    if(lampIdx === 'all'){
+
+      //if the lampIdx is all
+      //create new state and change lamp state
+      //for each lamp seperately
+
+      //this because if you use one state for
+      //multiple lamps you get unexpected behaviour
+      for(var i = 1; i <= lampsToChange; i++){
+        state = this.createState(flags);
+        this.changeLightToState(i, state, onLampChange);
+      }
+
+    } else {
+      state = this.createState(flags);
+      this.changeLightToState(lampIdx, state, onLampChange);
+    }
 
   }
 
@@ -100,52 +137,20 @@ HueCli.prototype.throwError = function(err){
 
 /**
  * Changes a lamp to the specified state
- * @param  {Number|String} lampIdx  Index of the lamp you would like to change or 'all'
- * @param  {Object}        state    Hue API state object
+ * @param  {Number|String} lampIdx     Index of the lamp you would like to change or 'all'
+ * @param  {Object}        state       Hue API state object
+ * @param  {Function}      callback    Callback function that invokes when the lamp has been changed
  */
-HueCli.prototype.changeLightToState = function(lampIdx, state){
-
-  var self = this,
-  lampsToChange = lampIdx === 'all' ? 3 : 1,
-  lampsChanged = { success: 0, error: 0 },
-  setLightState = function(lampIdx, state){
-    self.api.setLightState(lampIdx, state, function(err, success){
-      if(err) self.throwError(err);
-
-      if(success){
-        console.log('✔ Changed lamp '+lampIdx+'.');
-        lampsChanged.success++;
-      } else {
-        console.error('✘ An error occured');
-        lampsChanged.error++;
-      }
-
-      //check if all lamps are changed
-      //if so exit
-      if((lampsChanged.success+lampsChanged.error) === lampsToChange){
-        self.process.exit(lampsChanged.error > 0 ? 1 : 0);
-      }
-    });
-  };
+HueCli.prototype.changeLightToState = function(lampIdx, state, callback){
 
   //set new state
-  //to specified lamp or all
-  if(lampIdx === 'all'){
+  //to specified lamp
+  var self = this;
+  this.api.setLightState(lampIdx, state, function(err, success){
+    if(err) self.throwError(err);
 
-    this.api.lights(function(err, lights) {
-      if(err) self.throwError(err);
-      lights = lights.lights;
-
-      for(var i = 0; i < lights.length; i++){
-        setLightState(lights[i].id, state);
-      }
-    });
-
-  } else {
-
-    setLightState(lampIdx, state);
-
-  }
+    callback(success, lampIdx);
+  });
 
 };
 
