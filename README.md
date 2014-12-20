@@ -12,7 +12,12 @@ sudo npm install
 ./hue init
 ```
 
-### Detailed Manual
+### Help
 ```
 ./hue --help
+```
+
+### Detailed Manual
+```
+./hue --manual
 ```
