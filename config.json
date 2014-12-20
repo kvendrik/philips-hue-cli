@@ -4,6 +4,6 @@
     "hash": "2bd9d6e812dfb99fe899c9829db658f"
   },
   "aliases": {
-    "redalert": "2 --rgb=255,0,0 --alert=true"
+    "redalert": "all --rgb=255,0,0 --alert=true"
   }
 }
