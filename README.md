@@ -21,7 +21,7 @@ hue --manual
 ```
 
 ### Install manually
-Clone this repo, move into the folder and run the init command.
+Clone this repo, move into the folder, install the dependencies and run the init command.
 ```
 git clone https://github.com/kvendrik/philips-hue-cli.git
 cd philips-hue-cli
@@ -29,7 +29,7 @@ sudo npm install
 ./hue init
 ```
 
-If you would like to install the CLI globally then run this when in the folder:
+If you would like to install the manually installed CLI globally then run this when in the folder:
 ```
 sudo npm install -g
 ```
