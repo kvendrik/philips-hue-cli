@@ -7,7 +7,7 @@ A simple CLI to control the Philips Hue lights and manage its users.
 Install the module globally and run the init command. This will walk you through the steps of setting up the CLI with your bridge.
 ```
 sudo npm install philips-hue-cli -g
-hue init
+sudo hue init
 ```
 
 ### Help
