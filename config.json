@@ -5,6 +5,6 @@
   },
   "aliases": {
     "redalert": "all --rgb=255,0,0 --alert=true",
-    "on": "all --on --rgb=255,255,255"
+    "on": "all --on --rgb=255,197,143 --brightness=70"
   }
 }
