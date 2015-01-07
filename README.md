@@ -1,4 +1,4 @@
-Philips Hue CLI
+Philips Hue CLI ![NPM](https://badge.fury.io/js/philips-hue-cli.svg) ![Dependencies](https://david-dm.org/kvendrik/philips-hue-cli.svg)
 ===============
 
 A simple CLI to control the Philips Hue lights and manage its users.
